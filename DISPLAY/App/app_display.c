@@ -66,7 +66,7 @@ typedef struct orientation_s
 #define MEM_READ_DATA       BSP_MEM_ReadData
 #endif
 /* USER CODE END PM */
-
+#define GFX01M1_DELAY 		HAL_Delay(3) //@Phu add to wait for SPI complete
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 uint8_t __IO TransferAllowed = 0;
@@ -116,10 +116,12 @@ static void BSP_LCD_Clear(uint32_t Instance, uint32_t Xpos, uint32_t Ypos, uint3
 
   while(1)
   {
-    if(BSP_LCD_FillRGBRect(Instance, USE_LCD_DMA, CacheBuffer, Xpos, line_cnt, Width, CacheLinesCnt) != BSP_ERROR_NONE)
+	  //if(BSP_LCD_FillRGBRect(Instance, USE_LCD_DMA, CacheBuffer, Xpos, line_cnt, Width, CacheLinesCnt) != BSP_ERROR_NONE)
+    while(BSP_LCD_FillRGBRect(Instance, USE_LCD_DMA, CacheBuffer, Xpos, line_cnt, Width, CacheLinesCnt) != BSP_ERROR_NONE)
     {
       Error_Handler();
     }
+    GFX01M1_DELAY;
     BSP_LCD_WaitForTransferToBeDone(0);
     line_cnt += CacheLinesCnt;
     offset += CacheLinesSz;
@@ -133,10 +135,13 @@ static void BSP_LCD_Clear(uint32_t Instance, uint32_t Xpos, uint32_t Ypos, uint3
     {
       /* Transfer last block and exit */
       CacheLinesCnt = ((size - offset)/ (2*Width));
-      if(BSP_LCD_FillRGBRect(Instance, USE_LCD_DMA, CacheBuffer, Xpos, line_cnt, Width, CacheLinesCnt) != BSP_ERROR_NONE)
+      //if(BSP_LCD_FillRGBRect(Instance, USE_LCD_DMA, CacheBuffer, Xpos, line_cnt, Width, CacheLinesCnt) != BSP_ERROR_NONE)
+      while(BSP_LCD_FillRGBRect(Instance, USE_LCD_DMA, CacheBuffer, Xpos, line_cnt, Width, CacheLinesCnt) != BSP_ERROR_NONE)
       {
         Error_Handler();
+
       }
+      GFX01M1_DELAY;
       BSP_LCD_WaitForTransferToBeDone(0);
       break;
     }
@@ -166,6 +171,7 @@ static void Display_Image(image_t *image, uint16_t posx, uint16_t posy)
       {
         Error_Handler();
       }
+      GFX01M1_DELAY;
       BSP_LCD_WaitForTransferToBeDone(0);
     }
     else
@@ -183,11 +189,13 @@ static void Display_Image(image_t *image, uint16_t posx, uint16_t posy)
         {
           Error_Handler();
         }
+        GFX01M1_DELAY;
         BSP_MEM_WaitForTransferToBeDone(0);
         if(BSP_LCD_FillRGBRect(0, USE_LCD_DMA, CacheBuffer, posx, posy, image->Width, Height) != BSP_ERROR_NONE)
         {
           Error_Handler();
         }
+        GFX01M1_DELAY;
         BSP_LCD_WaitForTransferToBeDone(0);
       }
       else
@@ -199,11 +207,13 @@ static void Display_Image(image_t *image, uint16_t posx, uint16_t posy)
           {
             Error_Handler();
           }
+          GFX01M1_DELAY;
           BSP_MEM_WaitForTransferToBeDone(0);
           if(BSP_LCD_FillRGBRect(0, USE_LCD_DMA, CacheBuffer, posx, posy+line_cnt, image->Width, CacheLinesCnt) != BSP_ERROR_NONE)
           {
             Error_Handler();
           }
+          GFX01M1_DELAY;
           BSP_LCD_WaitForTransferToBeDone(0);
           line_cnt += CacheLinesCnt;
           offset += CacheLinesSz;
@@ -220,12 +230,14 @@ static void Display_Image(image_t *image, uint16_t posx, uint16_t posy)
             {
               Error_Handler();
             }
+            GFX01M1_DELAY;
             BSP_MEM_WaitForTransferToBeDone(0);
             CacheLinesCnt = ((size - offset)/ (image->bpp*image->Width));
             if(BSP_LCD_FillRGBRect(0, USE_LCD_DMA, CacheBuffer, posx, posy+line_cnt, image->Width, CacheLinesCnt) != BSP_ERROR_NONE)
             {
               Error_Handler();
             }
+            GFX01M1_DELAY;
             BSP_LCD_WaitForTransferToBeDone(0);
             break;
           }
