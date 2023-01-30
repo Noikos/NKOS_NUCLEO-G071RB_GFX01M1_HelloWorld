@@ -33,6 +33,8 @@ extern "C" {
 #include "lcd_io.h"
 #include "mem_io.h"
 #include "key_io.h"
+
+#include "NKOS.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 

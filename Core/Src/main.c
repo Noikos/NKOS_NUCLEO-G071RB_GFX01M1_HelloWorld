@@ -21,7 +21,7 @@
 #include "main.h"
 #include "app_display.h"
 #include "noikos_loop_with_display_task.h"
-#include "NKOS.h"
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
