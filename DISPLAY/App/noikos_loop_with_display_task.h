@@ -11,7 +11,7 @@
 /************************************
  * INCLUDES
  ************************************/
-
+#include <stdint.h>
 /************************************
  * MACROS AND DEFINES
  ************************************/
@@ -27,7 +27,7 @@
 /************************************
  * GLOBAL FUNCTION PROTOTYPES
  ************************************/
-extern unsigned int noikos_loop_with_delay_task_display_process(void);
+extern uint32_t noikos_loop_with_delay_task_display_process(void);
 
 #endif /* _NOIKOS_LOOP_WITH_DISPLAY_TASK_H_ */
 

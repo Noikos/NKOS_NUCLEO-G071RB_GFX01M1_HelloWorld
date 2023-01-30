@@ -142,6 +142,21 @@
 			<locationURI>PARENT-5-PROJECT_LOC/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/NKOS/MessageQueue.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/Middlewares/Noikos/Src/MessageQueue.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/NKOS/NKOS.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/Middlewares/Noikos/Src/NKOS.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/NKOS/list.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/Middlewares/Noikos/Src/list.c</locationURI>
+		</link>
+		<link>
 			<name>Application/User/Core/main.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Core/Src/main.c</locationURI>
@@ -180,6 +195,11 @@
 			<name>Application/User/DISPLAY/App/app_display.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/DISPLAY/App/app_display.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/DISPLAY/App/noikos_loop_with_display_task.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/DISPLAY/App/noikos_loop_with_display_task.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/DISPLAY/Target/key_io.c</name>

@@ -322,10 +322,10 @@ void MX_DISPLAY_Process(void)
       else if(posy == posy0) /* center current image */
       {
         posy = ((LCD_Height - Images[image_id].Height)/2);
-        BSP_LCD_Clear(0, 0, 0, LCD_Width, posy);
-        BSP_LCD_Clear(0, 0, posy+Images[image_id].Height, LCD_Width, posy);
+        BSP_LCD_Clear(0, 0, 0, LCD_Width, posy); //ToDo: conversion
+        BSP_LCD_Clear(0, 0, posy+Images[image_id].Height, LCD_Width, posy); //ToDo: conversion
       }
-      Display_Image(&Images[image_id], posx, posy);
+      Display_Image(&Images[image_id], posx, posy);//ToDo: conversion
     }
 
     if(BSP_KEY_GetState(0, &key) == BSP_ERROR_NONE)
@@ -347,7 +347,7 @@ void MX_DISPLAY_Process(void)
         case BSP_KEY_UP:
           if (can_move && (posy > STEP_LINES))
           {
-            BSP_LCD_Clear(0, 0, (posy + Images[image_id].Height), LCD_Width, STEP_LINES);
+            BSP_LCD_Clear(0, 0, (posy + Images[image_id].Height), LCD_Width, STEP_LINES);//ToDo: conversion
             posy -= STEP_LINES;
           }
           else
@@ -359,7 +359,7 @@ void MX_DISPLAY_Process(void)
         case BSP_KEY_DOWN:
           if (can_move && (posy <(LCD_Height-Images[image_id].Height-STEP_LINES)))
           {
-            BSP_LCD_Clear(0, 0, posy, LCD_Width, STEP_LINES);
+            BSP_LCD_Clear(0, 0, posy, LCD_Width, STEP_LINES);//ToDo: conversion
             posy += STEP_LINES;
           }
           else
