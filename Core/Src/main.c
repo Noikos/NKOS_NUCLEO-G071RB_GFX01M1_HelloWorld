@@ -20,6 +20,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "app_display.h"
+#include "noikos_loop_with_display_task.h"
+#include "NKOS.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -98,13 +100,22 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
+  if(nkos_task_init() != NOIKOS_TASK_INIT_RESULT_SUCCESS)
   {
-    /* USER CODE END WHILE */
-
-  MX_DISPLAY_Process();
-    /* USER CODE BEGIN 3 */
+	  printf("\r\n Can not init nkos \r\n");
   }
+  if(nkos_insert_loop_with_delay_task(0,noikos_loop_with_delay_task_display_process, NULL) != NOIKOS_TASK_INSERT_RESULT_SUCCESS)
+  {
+	  printf("\r\n Can not insert noikos_loop_with_delay_task_display_process \r\n");
+  }
+  nkos_run();
+//  while (1)
+//  {
+//    /* USER CODE END WHILE */
+//
+//  MX_DISPLAY_Process();
+//    /* USER CODE BEGIN 3 */
+//  }
   /* USER CODE END 3 */
 }
 
