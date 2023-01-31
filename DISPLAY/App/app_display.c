@@ -52,22 +52,22 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define STEP_LINES                  1
-#define USE_MEM_DMA                 1
-#define USE_LCD_DMA                 1
-#define BUTTON_USER_PRESSED_STATE   GPIO_PIN_RESET
+//#define STEP_LINES                  1
+//#define USE_MEM_DMA                 1
+//#define USE_LCD_DMA                 1
+//#define BUTTON_USER_PRESSED_STATE   GPIO_PIN_RESET
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define MIN(w,h)            (w < h ? w : h)
-#if (USE_MEM_DMA == 1)
-#define MEM_READ_DATA       BSP_MEM_ReadDataDMA
-#else
-#define MEM_READ_DATA       BSP_MEM_ReadData
-#endif
-/* USER CODE END PM */
-#define GFX01M1_DELAY 		HAL_Delay(3) //@Phu add to wait for SPI complete
+//#define MIN(w,h)            (w < h ? w : h)
+//#if (USE_MEM_DMA == 1)
+//#define MEM_READ_DATA       BSP_MEM_ReadDataDMA
+//#else
+//#define MEM_READ_DATA       BSP_MEM_ReadData
+//#endif
+///* USER CODE END PM */
+//#define GFX01M1_DELAY 		HAL_Delay(3) //@Phu add to wait for SPI complete
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 /*static*/uint8_t __IO TransferAllowed = 0;

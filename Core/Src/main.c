@@ -39,7 +39,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-//#define USE_NKOS_LCD_SOLUTION 1
+#define USE_NKOS_LCD_SOLUTION 1
 //#define TEST_NKOS_TASKS 1
 /* USER CODE END PM */
 

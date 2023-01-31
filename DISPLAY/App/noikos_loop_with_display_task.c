@@ -35,20 +35,20 @@
  * PRIVATE MACROS AND DEFINES
  ************************************/
 /* USER CODE BEGIN PD */
-#define STEP_LINES                  1
-#define USE_MEM_DMA                 1
-#define USE_LCD_DMA                 1
-#define BUTTON_USER_PRESSED_STATE   GPIO_PIN_RESET
+//#define STEP_LINES                  1
+//#define USE_MEM_DMA                 1
+//#define USE_LCD_DMA                 1
+//#define BUTTON_USER_PRESSED_STATE   GPIO_PIN_RESET
 /* USER CODE END PD */
 /* USER CODE BEGIN PM */
-#define MIN(w,h)            (w < h ? w : h)
-#if (USE_MEM_DMA == 1)
-#define MEM_READ_DATA       BSP_MEM_ReadDataDMA
-#else
-#define MEM_READ_DATA       BSP_MEM_ReadData
-#endif
+//#define MIN(w,h)            (w < h ? w : h)
+//#if (USE_MEM_DMA == 1)
+//#define MEM_READ_DATA       BSP_MEM_ReadDataDMA
+//#else
+//#define MEM_READ_DATA       BSP_MEM_ReadData
+//#endif
 /* USER CODE END PM */
-#define GFX01M1_DELAY 		HAL_Delay(3) //@Phu add to wait for SPI complete
+//#define GFX01M1_DELAY 		HAL_Delay(3) //@Phu add to wait for SPI complete
 /************************************
  * PRIVATE TYPEDEFS
  ************************************/
@@ -172,7 +172,7 @@ static uint32_t BSP_LCD_Clear()
 		//break;
 		printf("\r\n LCD_CLEAR move to state=%d \r\n",state);
 		state = 2;
-		return 3;
+		return 5;
 	case 2:
 		BSP_LCD_WaitForTransferToBeDone(0);
 		line_cnt += CacheLinesCnt;
@@ -197,7 +197,7 @@ static uint32_t BSP_LCD_Clear()
 //		  break;
 		  printf("\r\n LCD_CLEAR move to state=%d \r\n",state);
 		  state = 3;
-		  return 3;
+		  return 5;
 		}
 		state = 1;
 		break;
@@ -217,6 +217,21 @@ static uint32_t BSP_LCD_Clear()
   */
 static uint32_t Display_Image()
 {
+	enum {
+		DISPLAY_IMAGE_STATE_BEGIN,
+		DISPLAY_IMAGE_STATE_SEND_NFRAME_REACH_FLASH_BASE,
+		DISPLAY_IMAGE_STATE_SEND_NFRAME_REACH_FLASH_BASE1,
+		DISPLAY_IMAGE_STATE_SEND_FRAME,
+		DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_LESS_CACHELINESSZ,
+		DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_LESS_CACHELINESSZ1,
+		DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_LESS_CACHELINESSZ2,
+		DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ,
+		DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ1,
+		DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ2,
+		DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ3,
+		DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ4,
+		DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ5
+	};
 	static volatile uint8_t state = 0;
     static uint8_t *pData;
     static uint32_t Height;
@@ -227,8 +242,10 @@ static uint32_t Display_Image()
     static uint32_t line_cnt;
     static uint32_t offset;
 
+    uint32_t sleep;
+
     switch(state){
-    case 0:
+    case DISPLAY_IMAGE_STATE_BEGIN:
     	pData = (uint8_t *)display_img_image->Data;
     	Height = display_img_image->Height;
 
@@ -243,55 +260,66 @@ static uint32_t Display_Image()
     	// Send the frambuffer n times
 		if(((uint32_t )pData & 0xFF000000) == FLASH_BASE)
 		{
-		  if(BSP_LCD_FillRGBRect(0, USE_LCD_DMA, pData, display_img_posx, display_img_posy, display_img_image->Width, Height) != BSP_ERROR_NONE)
-		  {
-			Error_Handler();
-		  }
-//		  GFX01M1_DELAY;
-//		  BSP_LCD_WaitForTransferToBeDone(0);
-		  printf("\r\n Display_Image move to state=%d \r\n",state);
-		  state = 1;
-		  return 3;
+			state = DISPLAY_IMAGE_STATE_SEND_NFRAME_REACH_FLASH_BASE;
+			break;
 		}
 		else
 		{
-		  size = (display_img_image->bpp*display_img_image->Width*Height);
-		  CacheLinesSz = (2*MIN(LCD_Width,LCD_Height)*BUFFER_CACHE_LINES);
-		  CacheLinesCnt = (CacheLinesSz/(display_img_image->bpp*display_img_image->Width));
-		  line_cnt = 0;
-		  offset = 0;
-
-		  /* One block read */
-		  if(size < CacheLinesSz)
-		  {
-			if(MEM_READ_DATA(0, CacheBuffer, (uint32_t )pData, size) != BSP_ERROR_NONE)
-			{
-			  Error_Handler();
-			}
-//			GFX01M1_DELAY;
-//			BSP_MEM_WaitForTransferToBeDone(0);
-//			if(BSP_LCD_FillRGBRect(0, USE_LCD_DMA, CacheBuffer, display_img_posx, display_img_posy, display_img_image->Width, Height) != BSP_ERROR_NONE)
-//			{
-//			  Error_Handler();
-//			}
-//			GFX01M1_DELAY;
-//			BSP_LCD_WaitForTransferToBeDone(0);
-			printf("\r\n Display_Image move to state=%d \r\n",state);
-			state = 2;
-			return 3;
-		  }
-		  else
-		  {
-			  state = 4;
-			  return 0;
-		  }
+			state = DISPLAY_IMAGE_STATE_SEND_FRAME;
+			break;
 		}
-    case 1:
+    case DISPLAY_IMAGE_STATE_SEND_NFRAME_REACH_FLASH_BASE:
+    	if(BSP_LCD_FillRGBRect(0, USE_LCD_DMA, pData, display_img_posx, display_img_posy, display_img_image->Width, Height) != BSP_ERROR_NONE)
+		{
+    		Error_Handler();
+		}
+		//		  GFX01M1_DELAY;
+		//		  BSP_LCD_WaitForTransferToBeDone(0);
+		printf("\r\n Display_Image move to state=%d \r\n",state);
+		state = DISPLAY_IMAGE_STATE_SEND_NFRAME_REACH_FLASH_BASE1;
+		sleep = 5;
+		break;
+    case DISPLAY_IMAGE_STATE_SEND_NFRAME_REACH_FLASH_BASE1:
     	BSP_LCD_WaitForTransferToBeDone(0);
-
-    	state = 0;
+    	state = DISPLAY_IMAGE_STATE_BEGIN;
     	return 0;
-    case 2:
+    case DISPLAY_IMAGE_STATE_SEND_FRAME:
+    	size = (display_img_image->bpp*display_img_image->Width*Height);
+		CacheLinesSz = (2*MIN(LCD_Width,LCD_Height)*BUFFER_CACHE_LINES);
+		CacheLinesCnt = (CacheLinesSz/(display_img_image->bpp*display_img_image->Width));
+		line_cnt = 0;
+		offset = 0;
+
+		/* One block read */
+		if(size < CacheLinesSz)
+		{
+			state = DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_LESS_CACHELINESSZ;
+			sleep = 0;
+		}
+		else
+		{
+			state = DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ;
+		}
+		break;
+    case DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_LESS_CACHELINESSZ:
+    	if(MEM_READ_DATA(0, CacheBuffer, (uint32_t )pData, size) != BSP_ERROR_NONE)
+		{
+		  Error_Handler();
+		}
+		//			GFX01M1_DELAY;
+		//			BSP_MEM_WaitForTransferToBeDone(0);
+		//			if(BSP_LCD_FillRGBRect(0, USE_LCD_DMA, CacheBuffer, display_img_posx, display_img_posy, display_img_image->Width, Height) != BSP_ERROR_NONE)
+		//			{
+		//			  Error_Handler();
+		//			}
+		//			GFX01M1_DELAY;
+		//			BSP_LCD_WaitForTransferToBeDone(0);
+		printf("\r\n Display_Image move to state=%d \r\n",state);
+		state = DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_LESS_CACHELINESSZ1;
+		sleep = 5;
+    	break;
+
+    case DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_LESS_CACHELINESSZ1:
 		BSP_MEM_WaitForTransferToBeDone(0);
 		if(BSP_LCD_FillRGBRect(0, USE_LCD_DMA, CacheBuffer, display_img_posx, display_img_posy, display_img_image->Width, Height) != BSP_ERROR_NONE)
 		{
@@ -301,35 +329,40 @@ static uint32_t Display_Image()
 		//GFX01M1_DELAY;
 		//BSP_LCD_WaitForTransferToBeDone(0);
 		printf("\r\n Display_Image move to state=%d \r\n",state);
-		state = 3;
-		return 3;
-    case 3:
+		state = DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_LESS_CACHELINESSZ2;
+		sleep = 5;
+		break;
+    case DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_LESS_CACHELINESSZ2:
     	BSP_LCD_WaitForTransferToBeDone(0);
 
     	display_finish = true;
-		state = 0;
-		return 0;
-    case 4:
-    	//while(1)
+		state = DISPLAY_IMAGE_STATE_BEGIN;
+		sleep = 0;
+		break;
+    case DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ:
+		state = DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ1;
+		sleep = 0;
+		break;
+    case DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ1:
+    	/* Multi-block read/write */
+		if(MEM_READ_DATA(0, CacheBuffer, (uint32_t )(pData+offset), CacheLinesSz) != BSP_ERROR_NONE)
 		{
-		  /* Multi-block read/write */
-		  if(MEM_READ_DATA(0, CacheBuffer, (uint32_t )(pData+offset), CacheLinesSz) != BSP_ERROR_NONE)
-		  {
-			Error_Handler();
-		  }
-		  state = 5;
-		  return 4;
+		Error_Handler();
 		}
-    case 5:
-		  BSP_MEM_WaitForTransferToBeDone(0);
-		  if(BSP_LCD_FillRGBRect(0, USE_LCD_DMA, CacheBuffer, display_img_posx, display_img_posy+line_cnt, display_img_image->Width, CacheLinesCnt) != BSP_ERROR_NONE)
-		  {
+		state = DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ2;
+		sleep = 5;
+		break;
+    case DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ2:
+		BSP_MEM_WaitForTransferToBeDone(0);
+		if(BSP_LCD_FillRGBRect(0, USE_LCD_DMA, CacheBuffer, display_img_posx, display_img_posy+line_cnt, display_img_image->Width, CacheLinesCnt) != BSP_ERROR_NONE)
+		{
 			Error_Handler();
-		  }
-		  printf("\r\n Display_Image move to state=%d \r\n",state);
-		  state = 6;
-		  return 3;
-    case 6:
+		}
+		printf("\r\n Display_Image move to state=%d \r\n",state);
+		state = DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ3;
+		sleep = 5;
+		break;
+    case DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ3:
     	BSP_LCD_WaitForTransferToBeDone(0);
 		line_cnt += CacheLinesCnt;
 		offset += CacheLinesSz;
@@ -339,8 +372,9 @@ static uint32_t Display_Image()
 			/* last block transfer was done, so exit */
 
 			display_finish = true;
-			state = 0;
-			return 0;
+			state = DISPLAY_IMAGE_STATE_BEGIN;
+			sleep = 0;
+			break;
 		}
 		else if((offset + CacheLinesSz) > size)
 		{
@@ -350,12 +384,15 @@ static uint32_t Display_Image()
 			  Error_Handler();
 			}
 			printf("\r\n Display_Image move to state=%d \r\n",state);
-			state = 7;
-			return 3;
+			state = DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ4;
+			sleep = 5;
+			break;
 		}
-		state = 4;
-		return 0;
-    case 7:
+		/*Loop back to DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ*/
+		state = DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ;
+		sleep = 0;
+		break;
+    case DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ4:
 		BSP_MEM_WaitForTransferToBeDone(0);
 		CacheLinesCnt = ((size - offset)/ (display_img_image->bpp*display_img_image->Width));
 		if(BSP_LCD_FillRGBRect(0, USE_LCD_DMA, CacheBuffer, display_img_posx, display_img_posy+line_cnt, display_img_image->Width, CacheLinesCnt) != BSP_ERROR_NONE)
@@ -363,17 +400,19 @@ static uint32_t Display_Image()
 		  Error_Handler();
 		}
 		printf("\r\n Display_Image move to state=%d \r\n",state);
-		state = 8;
-		return 3;
-    case 8:
+		state = DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ5;
+		sleep = 5;
+		break;
+    case DISPLAY_IMAGE_STATE_SEND_FRAME_SIZE_NOT_LESS_CACHELINESSZ5:
 		BSP_LCD_WaitForTransferToBeDone(0);
 		display_finish = true;
-		state = 0;
-		return 0;
+		state = DISPLAY_IMAGE_STATE_BEGIN;
+		sleep = 0;
+		break;
     default:
     	printf("\r\n Display_Image: Error state=%d ",state);
     }
-    return 0;
+    return sleep;
 }
 /************************************
  * GLOBAL FUNCTIONS

@@ -38,7 +38,24 @@
    uint32_t  lcd;
    uint32_t  key;
  } orientation_t;
-/* Global variables ---------------------------------------------------------*/
+ /* Exported define ------------------------------------------------------------*/
+ /* USER CODE BEGIN PD */
+#define STEP_LINES                  1
+#define USE_MEM_DMA                 1
+#define USE_LCD_DMA                 1
+#define BUTTON_USER_PRESSED_STATE   GPIO_PIN_RESET
+ /* USER CODE END PD */
+ /* Exported macro -------------------------------------------------------------*/
+ /* USER CODE BEGIN PM */
+#define MIN(w,h)            (w < h ? w : h)
+#if (USE_MEM_DMA == 1)
+#define MEM_READ_DATA       BSP_MEM_ReadDataDMA
+#else
+#define MEM_READ_DATA       BSP_MEM_ReadData
+#endif
+ ///* USER CODE END PM */
+#define GFX01M1_DELAY 		HAL_Delay(3) //@Phu add to wait for SPI complete
+/* Exported variables ---------------------------------------------------------*/
 /* USER CODE BEGIN ET */
 
 
