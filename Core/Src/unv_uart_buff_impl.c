@@ -13,7 +13,7 @@
  * INCLUDES
  ************************************/
 #include "unv_uart_buff_impl.h"
-
+#include "main.h"
 /************************************
  * PRIVATE PREPROCESSOR DEFINES
  ************************************/
@@ -29,7 +29,7 @@
  /************************************
  * EXPORTED VARIABLES DEFINITION
  ************************************/
-
+unv_uart_buff_t uart_buff_0;
 /************************************
  * PRIVATE&STATIC VARIABLES
  ************************************/
@@ -66,27 +66,28 @@ void uart_buff_transmit_tc_callback(void)
     //g_uart0_ctrl.p_reg->SCR |= (uint8_t) (SCI_SCR_TEIE_MASK);
 }
 
-//__weak void uart_buff_transmit_er_callback(void)
-//{
-//
-//}
-//
-//
-//__weak void uart_buff_hardware_config(void)
-//{
-//
-//}
+__attribute__((weak)) void uart_buff_transmit_er_callback(void)
+{
+
+}
+
+
+__attribute__((weak)) void uart_buff_hardware_config(void)
+{
+
+}
 
 void uart_buff_phy_write(uint8_t data)
 {
     printf ("\r\n ** uart_buff_phy_write() ** \r\n");
-    NIT_R_SCI_UART_Write8(&g_uart0_ctrl, data);
+	LL_USART_TransmitData8(USART1, data);
+    //NIT_R_SCI_UART_Write8(&g_uart0_ctrl, data);
 }
 
 uint8_t  uart_buff_phy_read(void)
 {
 //    printf ("\r\n ** uart_buff_phy_read()=0x%x ** \r\n",uart_revice_char);
-    return NIT_R_SCI_UART_Read8(&g_uart0_ctrl);
+    return LL_USART_ReceiveData8(USART1);
 }
 
 uint8_t  uart_buff_phy_read_status(void)
@@ -97,72 +98,34 @@ uint8_t  uart_buff_phy_read_status(void)
 void uart_buff_phy_enable_txe_flag(void)
 {
     printf ("\r\n ** uart_buff_phy_enable_txe_flag() ** \r\n");
-    //R_BSP_IrqEnable(g_uart0_ctrl.p_cfg->tei_irq);
-    g_uart0_ctrl.p_reg->SCR |= (uint8_t) (SCI_SCR_TEIE_MASK);
-    //g_uart0_ctrl.p_reg->SCR |= (uint8_t) (SCI_SCR_TIE_MASK);
+    /* Enable TXE interrupt */
+  LL_USART_EnableIT_TXE(USART1);
 }
 
 void uart_buff_phy_disable_txe_flag(void)
 {
     printf ("\r\n ** uart_buff_phy_disable_txe_flag() ** \r\n");
     //R_BSP_IrqDisable(g_uart0_ctrl.p_cfg->tei_irq);
-    g_uart0_ctrl.p_reg->SCR &= (uint8_t) ~(SCI_SCR_TEIE_MASK);
+    LL_USART_DisableIT_TXE(USART1);
     //g_uart0_ctrl.p_reg->SCR &= (uint8_t) ~(SCI_SCR_TIE_MASK);
 }
 
 ////////////////////////////////////////////
-
-void uart_buff_0_transmit_tc_callback(void)
-{
-
-}
-
-void uart_buff_0_transmit_er_callback(void)
-{
-
-}
-
-
-void uart_buff_0_phy_write(uint8_t data)
-{
-    NIT_R_SCI_UART_Write8(&g_uart0_ctrl, data);
-}
-
-uint8_t  uart_buff_0_phy_read(void)
-{
-    return NIT_R_SCI_UART_Read8(&g_uart0_ctrl);
-}
-
-uint8_t  uart_buff_0_phy_read_status(void)
-{
-    return 0;
-}
-
-void uart_buff_0_phy_enable_txe_flag(void)
-{
-    g_uart0_ctrl.p_reg->SCR |= (uint8_t)(SCI_SCR_TEIE_MASK);
-}
-
-void uart_buff_0_phy_disable_txe_flag(void)
-{
-    g_uart0_ctrl.p_reg->SCR &= (uint8_t) ~(SCI_SCR_TEIE_MASK);
-}
-
 void init_uart_buffer(void)
 {
-  uart_buff_0.uart_buff_transmit_tc_callback =  uart_buff_0_transmit_tc_callback;
+  uart_buff_0.uart_buff_transmit_tc_callback =  uart_buff_transmit_tc_callback;
 
-  uart_buff_0.uart_buff_transmit_er_callback = uart_buff_0_transmit_er_callback;
+  uart_buff_0.uart_buff_transmit_er_callback = uart_buff_transmit_er_callback;
 
-  uart_buff_0.uart_buff_phy_write = uart_buff_0_phy_write;
+  uart_buff_0.uart_buff_phy_write = uart_buff_phy_write;
 
-  uart_buff_0.uart_buff_phy_read = uart_buff_0_phy_read;
+  uart_buff_0.uart_buff_phy_read = uart_buff_phy_read;
 
-  uart_buff_0.uart_buff_phy_read_status =  uart_buff_0_phy_read_status;
+  uart_buff_0.uart_buff_phy_read_status =  uart_buff_phy_read_status;
 
-  uart_buff_0.uart_buff_phy_enable_txe_flag = uart_buff_0_phy_enable_txe_flag;
+  uart_buff_0.uart_buff_phy_enable_txe_flag = uart_buff_phy_enable_txe_flag;
 
-  uart_buff_0.uart_buff_phy_disable_txe_flag = uart_buff_0_phy_disable_txe_flag;
+  uart_buff_0.uart_buff_phy_disable_txe_flag = uart_buff_phy_disable_txe_flag;
 
   unv_uart_buff_init(&uart_buff_0);
 

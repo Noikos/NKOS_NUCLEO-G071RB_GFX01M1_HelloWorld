@@ -244,6 +244,7 @@ void USART1_IRQHandler(void)
     /* RXNE flag will be cleared by reading of RDR register (done in call) */
     /* Call function in charge of handling Character reception */
 //    USART_CharReception_Callback();
+	  unv_uart_buff_receive_interrupt_handler(&uart_buff_0);
   }
 
   if (LL_USART_IsEnabledIT_TXE(USART1) && LL_USART_IsActiveFlag_TXE(USART1))
@@ -252,6 +253,7 @@ void USART1_IRQHandler(void)
 
     /* Call function in charge of handling empty DR => will lead to transmission of next character */
 //    USART_TXEmpty_Callback();
+	  unv_uart_buff_transmit_txe_interrupt_handler(&uart_buff_0);
   }
 
   if (LL_USART_IsEnabledIT_TC(USART1) && LL_USART_IsActiveFlag_TC(USART1))
@@ -261,12 +263,14 @@ void USART1_IRQHandler(void)
     /* Call function in charge of handling end of transmission of sent character
        and prepare next character transmission */
 //    USART_CharTransmitComplete_Callback();
+    unv_uart_buff_transmit_tc_interrupt_handler(&uart_buff_0);
   }
 
   if (LL_USART_IsEnabledIT_ERROR(USART1) && LL_USART_IsActiveFlag_NE(USART1))
   {
     /* Call Error function */
 //    USART_TransferError_Callback();
+	  unv_uart_buff_transmit_error_interrupt_handler(&uart_buff_0);
   }
 
   /* USER CODE END USART1_IRQn 0 */

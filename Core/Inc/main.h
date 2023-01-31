@@ -39,6 +39,7 @@ extern "C" {
 #include "key_io.h"
 
 #include "NKOS.h"
+#include "unv_uart_buff_impl.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
