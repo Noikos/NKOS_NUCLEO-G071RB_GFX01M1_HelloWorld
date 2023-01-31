@@ -232,6 +232,48 @@ void SPI2_IRQHandler(void)
   /* USER CODE END SPI2_IRQn 1 */
 }
 
+/**
+  * @brief This function handles USART1 global interrupt / USART1 wake-up interrupt through EXTI line 25.
+  */
+void USART1_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART1_IRQn 0 */
+  /* Check RXNE flag value in ISR register */
+  if (LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1))
+  {
+    /* RXNE flag will be cleared by reading of RDR register (done in call) */
+    /* Call function in charge of handling Character reception */
+//    USART_CharReception_Callback();
+  }
+
+  if (LL_USART_IsEnabledIT_TXE(USART1) && LL_USART_IsActiveFlag_TXE(USART1))
+  {
+    /* TXE flag will be automatically cleared when writing new data in TDR register */
+
+    /* Call function in charge of handling empty DR => will lead to transmission of next character */
+//    USART_TXEmpty_Callback();
+  }
+
+  if (LL_USART_IsEnabledIT_TC(USART1) && LL_USART_IsActiveFlag_TC(USART1))
+  {
+    /* Clear TC flag */
+    LL_USART_ClearFlag_TC(USART1);
+    /* Call function in charge of handling end of transmission of sent character
+       and prepare next character transmission */
+//    USART_CharTransmitComplete_Callback();
+  }
+
+  if (LL_USART_IsEnabledIT_ERROR(USART1) && LL_USART_IsActiveFlag_NE(USART1))
+  {
+    /* Call Error function */
+//    USART_TransferError_Callback();
+  }
+
+  /* USER CODE END USART1_IRQn 0 */
+  /* USER CODE BEGIN USART1_IRQn 1 */
+
+  /* USER CODE END USART1_IRQn 1 */
+}
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */

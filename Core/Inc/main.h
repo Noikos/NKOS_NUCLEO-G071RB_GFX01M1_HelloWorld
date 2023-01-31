@@ -30,6 +30,10 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g0xx_hal.h"
 
+#include "stm32g0xx_ll_bus.h"
+#include "stm32g0xx_ll_usart.h"
+#include "stm32g0xx_ll_gpio.h"
+
 #include "lcd_io.h"
 #include "mem_io.h"
 #include "key_io.h"

@@ -142,6 +142,11 @@
 			<locationURI>PARENT-5-PROJECT_LOC/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32G0xx_HAL_Driver/stm32g0xx_ll_usart.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_usart.c</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/NKOS/MessageQueue.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/Middlewares/Noikos/Src/MessageQueue.c</locationURI>
@@ -155,6 +160,11 @@
 			<name>Middlewares/NKOS/list.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/Middlewares/Noikos/Src/list.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/NKOS/unv_uart_buff.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/Middlewares/Noikos/Src/unv_uart_buff.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/Core/main.c</name>
