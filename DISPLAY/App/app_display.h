@@ -23,11 +23,41 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-
+#include "main.h"
 /* Exported types ------------------------------------------------------------*/
+ typedef struct image_s
+ {
+   uint32_t  Width;
+   uint32_t  Height;
+   uint8_t   bpp;
+   uint8_t*  Data;
+ } image_t;
+
+ typedef struct orientation_s
+ {
+   uint32_t  lcd;
+   uint32_t  key;
+ } orientation_t;
+/* Global variables ---------------------------------------------------------*/
 /* USER CODE BEGIN ET */
 
+
+ extern uint8_t CacheBuffer[];
+ extern uint16_t posy0;
+ extern uint16_t posx;
+ extern uint16_t posy;
+ extern uint8_t key;
+ extern uint8_t image_id;
+ extern uint32_t LCD_Width;
+ extern uint32_t LCD_Height;
+ extern uint32_t LCD_Orientation;
+ extern uint8_t orientation_id;
+
+ extern image_t Images[];
+
+ extern const orientation_t orientations[] ;
 /* USER CODE END ET */
+
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */

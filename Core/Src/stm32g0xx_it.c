@@ -63,7 +63,7 @@ extern DMA_HandleTypeDef hdma_spi2_tx;
 extern DMA_HandleTypeDef hdma_spi2_rx;
 extern SPI_HandleTypeDef hspi2;
 /* USER CODE BEGIN EV */
-extern uint8_t TransferAllowed;
+//extern uint8_t TransferAllowed;
 /* USER CODE END EV */
 
 /******************************************************************************/

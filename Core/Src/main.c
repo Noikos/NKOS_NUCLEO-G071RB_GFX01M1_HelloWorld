@@ -39,7 +39,8 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+//#define USE_NKOS_LCD_SOLUTION 1
+//#define TEST_NKOS_TASKS 1
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -55,12 +56,39 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_CRC_Init(void);
 /* USER CODE BEGIN PFP */
-
+#ifdef TEST_NKOS_TASKS
+static void noikos_10_seconds_rountine(void);
+static uint32_t nkos_loop_with_delay_5_10_seconds_task_routine(void);
+#endif /*TEST_NKOS_TASKS*/
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#ifdef TEST_NKOS_TASKS
+void noikos_10_seconds_rountine(void)
+{
+	static uint8_t counter = 0;
+	counter++;
+	if(counter == 10)
+	{
+		counter = 0;
+		nkos_print_uptime();
+	}
+}
 
+uint32_t nkos_loop_with_delay_5_10_seconds_task_routine(void)
+{
+	static bool odd = false;
+	if(odd){
+		odd = false;
+		return 5000;
+	}else
+	{
+		odd = true;
+		return 10000;
+	}
+}
+#endif /*TEST_NKOS_TASKS*/
 /* USER CODE END 0 */
 
 /**
@@ -100,6 +128,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+#ifdef USE_NKOS_LCD_SOLUTION
   if(nkos_task_init() != NOIKOS_TASK_INIT_RESULT_SUCCESS)
   {
 	  printf("\r\n Can not init nkos \r\n");
@@ -108,14 +137,27 @@ int main(void)
   {
 	  printf("\r\n Can not insert noikos_loop_with_delay_task_display_process \r\n");
   }
+#ifdef TEST_NKOS_TASKS
+  if(nkos_insert_loop_with_delay_task(0,nkos_loop_with_delay_5_10_seconds_task_routine, NULL) != NOIKOS_TASK_INSERT_RESULT_SUCCESS)
+	{
+	  printf("\r\n Can not insert noikos_loop_with_delay_task_display_process \r\n");
+	}
+
+  if(nkos_insert_periodic_task(1000,0,noikos_10_seconds_rountine, NULL) != NOIKOS_TASK_INSERT_RESULT_SUCCESS)
+  {
+	  printf("\r\n Can not insert noikos_loop_with_delay_task_display_process \r\n");
+  }
+#endif  /*TEST_NKOS_TASKS*/
   nkos_run();
-//  while (1)
-//  {
-//    /* USER CODE END WHILE */
-//
-//  MX_DISPLAY_Process();
-//    /* USER CODE BEGIN 3 */
-//  }
+#else
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+  MX_DISPLAY_Process();
+    /* USER CODE BEGIN 3 */
+  }
+#endif /*USE_NKOS_LCD_SOLUTION*/
   /* USER CODE END 3 */
 }
 

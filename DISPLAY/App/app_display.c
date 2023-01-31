@@ -16,8 +16,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "app_display.h"
-#include "main.h"
+//#include "main.h"
 
+#include "stm32g0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 #include "key_io.h"
 #include "mem_io.h"
@@ -34,19 +35,19 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-typedef struct image_s
-{
-  uint32_t  Width;
-  uint32_t  Height;
-  uint8_t   bpp;
-  uint8_t*  Data;
-} image_t;
-
-typedef struct orientation_s
-{
-  uint32_t  lcd;
-  uint32_t  key;
-} orientation_t;
+//typedef struct image_s
+//{
+//  uint32_t  Width;
+//  uint32_t  Height;
+//  uint8_t   bpp;
+//  uint8_t*  Data;
+//} image_t;
+//
+//typedef struct orientation_s
+//{
+//  uint32_t  lcd;
+//  uint32_t  key;
+//} orientation_t;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -69,19 +70,19 @@ typedef struct orientation_s
 #define GFX01M1_DELAY 		HAL_Delay(3) //@Phu add to wait for SPI complete
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-uint8_t __IO TransferAllowed = 0;
-static uint8_t CacheBuffer[(320*2*BUFFER_CACHE_LINES)];
-static uint16_t posy0 = 0;
-static uint16_t posx = 0;
-static uint16_t posy = 0;
-static uint8_t key = 1;
-static uint8_t image_id = 0;
-static uint32_t LCD_Width = 0;
-static uint32_t LCD_Height = 0;
-static uint32_t LCD_Orientation = 0;
-static uint8_t orientation_id = 0;
+/*static*/uint8_t __IO TransferAllowed = 0;
+/*static*/uint8_t CacheBuffer[(320*2*BUFFER_CACHE_LINES)];
+/*static*/uint16_t posy0 = 0;
+/*static*/uint16_t posx = 0;
+/*static*/uint16_t posy = 0;
+/*static*/uint8_t key = 1;
+/*static*/uint8_t image_id = 0;
+/*static*/uint32_t LCD_Width = 0;
+/*static*/uint32_t LCD_Height = 0;
+/*static*/uint32_t LCD_Orientation = 0;
+/*static*/uint8_t orientation_id = 0;
 
-static image_t Images[] = { { 240, 240, 2, (uint8_t *)Image1 }
+/*static*/image_t Images[] = { { 240, 240, 2, (uint8_t *)Image1 }
                           , { 240, 320, 2, (uint8_t *)Image2 }
                           , { 320, 240, 2, (uint8_t *)Image3 }
                           , { 240, 240, 2, (uint8_t *)Image4 }
@@ -89,7 +90,7 @@ static image_t Images[] = { { 240, 240, 2, (uint8_t *)Image1 }
                           , { 240, 240, 2, (uint8_t *)Image6 }
                           , {0, 0, 0, 0} };
 
-static const orientation_t orientations[] = { { LCD_ORIENTATION_PORTRAIT, KEY_ORIENTATION_PORTRAIT }
+/*static*/const orientation_t orientations[] = { { LCD_ORIENTATION_PORTRAIT, KEY_ORIENTATION_PORTRAIT }
                                             , { LCD_ORIENTATION_LANDSCAPE, KEY_ORIENTATION_LANDSCAPE }
                                             , { LCD_ORIENTATION_PORTRAIT_ROT180, KEY_ORIENTATION_PORTRAIT_ROT180 }
                                             , { LCD_ORIENTATION_LANDSCAPE_ROT180, KEY_ORIENTATION_LANDSCAPE_ROT180 }} ;

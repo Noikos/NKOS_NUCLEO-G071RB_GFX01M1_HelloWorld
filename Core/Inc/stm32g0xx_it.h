@@ -33,7 +33,7 @@
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+ extern uint8_t __IO TransferAllowed;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/

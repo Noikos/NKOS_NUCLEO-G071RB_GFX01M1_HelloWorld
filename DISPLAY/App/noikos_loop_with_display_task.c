@@ -15,6 +15,8 @@
 #include "app_display.h"
 #include "main.h"
 
+#include "stm32g0xx_it.h"
+
 #include <stdbool.h>
 /* Private includes ----------------------------------------------------------*/
 #include "key_io.h"
@@ -50,25 +52,26 @@
 /************************************
  * PRIVATE TYPEDEFS
  ************************************/
-typedef struct image_s
-{
-  uint32_t  Width;
-  uint32_t  Height;
-  uint8_t   bpp;
-  uint8_t*  Data;
-} image_t;
-
-typedef struct orientation_s
-{
-  uint32_t  lcd;
-  uint32_t  key;
-} orientation_t;
+//typedef struct image_s
+//{
+//  uint32_t  Width;
+//  uint32_t  Height;
+//  uint8_t   bpp;
+//  uint8_t*  Data;
+//} image_t;
+//
+//typedef struct orientation_s
+//{
+//  uint32_t  lcd;
+//  uint32_t  key;
+//} orientation_t;
 /* USER CODE END PTD */
 
 /* PHU CODE BEGIN PTD */
 typedef enum task_display_process_state_enum {
 	TASK_DISPLAY_PROCESS_STATE_GPIO_GENERIC,
 	TASK_DISPLAY_PROCESS_STATE_KEY_PRESSED,
+	TASK_DISPLAY_PROCESS_STATE_KEY_PRESSED_LCD_CLEAR0,
 	TASK_DISPLAY_PROCESS_STATE_KEY_PRESSED_LCD_CLEAR1,
 	TASK_DISPLAY_PROCESS_STATE_KEY_PRESSED_LCD_CLEAR2,
 	TASK_DISPLAY_PROCESS_STATE_KEY_PRESSED_DISPLAY,
@@ -87,30 +90,30 @@ typedef enum task_display_process_state_enum {
  * STATIC VARIABLES
  ************************************/
 /* USER CODE BEGIN PV */
-static uint8_t __IO TransferAllowed = 0;
-static uint8_t CacheBuffer[(320*2*BUFFER_CACHE_LINES)];
-static uint16_t posy0 = 0;
-static uint16_t posx = 0;
-static uint16_t posy = 0;
-static uint8_t key = 1;
-static uint8_t image_id = 0;
-static uint32_t LCD_Width = 0;
-static uint32_t LCD_Height = 0;
-static uint32_t LCD_Orientation = 0;
-static uint8_t orientation_id = 0;
+//static uint8_t __IO TransferAllowed = 0;
+//static uint8_t CacheBuffer[(320*2*BUFFER_CACHE_LINES)];
+//static uint16_t posy0 = 0;
+//static uint16_t posx = 0;
+//static uint16_t posy = 0;
+//static uint8_t key = 1;
+//static uint8_t image_id = 0;
+//static uint32_t LCD_Width = 0;
+//static uint32_t LCD_Height = 0;
+//static uint32_t LCD_Orientation = 0;
+//static uint8_t orientation_id = 0;
 
-static image_t Images[] = { { 240, 240, 2, (uint8_t *)Image1 }
-                          , { 240, 320, 2, (uint8_t *)Image2 }
-                          , { 320, 240, 2, (uint8_t *)Image3 }
-                          , { 240, 240, 2, (uint8_t *)Image4 }
-                          , { 240, 320, 2, (uint8_t *)Image5 }
-                          , { 240, 240, 2, (uint8_t *)Image6 }
-                          , {0, 0, 0, 0} };
-
-static const orientation_t orientations[] = { { LCD_ORIENTATION_PORTRAIT, KEY_ORIENTATION_PORTRAIT }
-                                            , { LCD_ORIENTATION_LANDSCAPE, KEY_ORIENTATION_LANDSCAPE }
-                                            , { LCD_ORIENTATION_PORTRAIT_ROT180, KEY_ORIENTATION_PORTRAIT_ROT180 }
-                                            , { LCD_ORIENTATION_LANDSCAPE_ROT180, KEY_ORIENTATION_LANDSCAPE_ROT180 }} ;
+//static image_t Images[] = { { 240, 240, 2, (uint8_t *)Image1 }
+//                          , { 240, 320, 2, (uint8_t *)Image2 }
+//                          , { 320, 240, 2, (uint8_t *)Image3 }
+//                          , { 240, 240, 2, (uint8_t *)Image4 }
+//                          , { 240, 320, 2, (uint8_t *)Image5 }
+//                          , { 240, 240, 2, (uint8_t *)Image6 }
+//                          , {0, 0, 0, 0} };
+//
+//static const orientation_t orientations[] = { { LCD_ORIENTATION_PORTRAIT, KEY_ORIENTATION_PORTRAIT }
+//                                            , { LCD_ORIENTATION_LANDSCAPE, KEY_ORIENTATION_LANDSCAPE }
+//                                            , { LCD_ORIENTATION_PORTRAIT_ROT180, KEY_ORIENTATION_PORTRAIT_ROT180 }
+//                                            , { LCD_ORIENTATION_LANDSCAPE_ROT180, KEY_ORIENTATION_LANDSCAPE_ROT180 }} ;
 
 static uint32_t LCD_Clear_Instance;
 static uint32_t LCD_Clear_Xpos;
@@ -150,7 +153,8 @@ static uint32_t BSP_LCD_Clear()
   {
 	switch(state) {
 	case 0:
-		offset = 0, line_cnt = LCD_Clear_Ypos;
+		offset = 0;
+		line_cnt = LCD_Clear_Ypos;
 		LCD_Clear_Finish = false;
 
 		size = (2*LCD_Clear_Width*LCD_Clear_Height);
@@ -314,7 +318,7 @@ static uint32_t Display_Image()
 			Error_Handler();
 		  }
 		  state = 5;
-		  return 3;
+		  return 4;
 		}
     case 5:
 		  BSP_MEM_WaitForTransferToBeDone(0);
@@ -389,7 +393,7 @@ uint32_t noikos_loop_with_delay_task_display_process(void)
 	/* USER CODE BEGIN MX_DISPLAY_Process */
 	int i;
 	static __IO uint8_t can_move = 0;
-	static __IO task_display_process_state_e display_state = TASK_DISPLAY_PROCESS_STATE_GPIO_GENERIC;
+	static __IO task_display_process_state_e display_state = TASK_DISPLAY_PROCESS_STATE_KEY_PRESSED;//Because @key is 1 at initialization phase, so it must be at this state//TASK_DISPLAY_PROCESS_STATE_GPIO_GENERIC;
 
 	uint32_t sleep_time;
 	/* Wait for TE */
@@ -557,17 +561,25 @@ uint32_t noikos_loop_with_delay_task_display_process(void)
 			  }
 			  if(posy == 0) /* reload new image */
 			  {
-				BSP_LCD_Clear(0, 0, 0, LCD_Width, LCD_Height);
-				posx = ((LCD_Width - Images[image_id].Width)/2);
-				if(Images[image_id].Height < LCD_Height)
-				{
-				  posy = ((LCD_Height - Images[image_id].Height)/2);
-				}
-				else
-				{
-				  posy = 0;
-				}
-				posy0 = posy;
+//				BSP_LCD_Clear(0, 0, 0, LCD_Width, LCD_Height);
+//				posx = ((LCD_Width - Images[image_id].Width)/2);
+//				if(Images[image_id].Height < LCD_Height)
+//				{
+//				  posy = ((LCD_Height - Images[image_id].Height)/2);
+//				}
+//				else
+//				{
+//				  posy = 0;
+//				}
+//				posy0 = posy;
+				  LCD_Clear_Instance = 0;
+				  LCD_Clear_Xpos = 0;
+				  LCD_Clear_Ypos = 0;
+				  LCD_Clear_Width = LCD_Width;
+				  LCD_Clear_Height = LCD_Height;
+				  display_state = TASK_DISPLAY_PROCESS_STATE_KEY_PRESSED_LCD_CLEAR0;
+				  printf("\r\n task_display_process move to state=%d \r\n",display_state);
+				  break;
 			  }
 			  else if(posy == posy0) /* center current image */
 			  {
@@ -593,6 +605,30 @@ uint32_t noikos_loop_with_delay_task_display_process(void)
 			}
 			display_state = TASK_DISPLAY_PROCESS_STATE_GPIO_GENERIC;
 			break;
+		case TASK_DISPLAY_PROCESS_STATE_KEY_PRESSED_LCD_CLEAR0:
+			sleep_time = BSP_LCD_Clear();
+			if(LCD_Clear_Finish)
+			{
+				posx = ((LCD_Width - Images[image_id].Width)/2);
+				if(Images[image_id].Height < LCD_Height)
+				{
+				  posy = ((LCD_Height - Images[image_id].Height)/2);
+				}
+				else
+				{
+				  posy = 0;
+				}
+				posy0 = posy;
+				display_state = TASK_DISPLAY_PROCESS_STATE_KEY_PRESSED_DISPLAY;
+				printf("\r\n task_display_process move to state=%d \r\n",display_state);
+				break;
+			}
+			if(sleep_time > 0)
+			{
+				return sleep_time;
+			}
+			//break;
+			return 0;
 		case TASK_DISPLAY_PROCESS_STATE_KEY_PRESSED_LCD_CLEAR1:
 			sleep_time = BSP_LCD_Clear();
 			if(LCD_Clear_Finish)
